@@ -1,0 +1,26 @@
+{
+  "name": "YouTube Downloader",
+  "description": "A Flask-based YouTube video downloader with modern UI",
+  "repository": "https://github.com/EugeneinTW/youtube",
+  "logo": "https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/youtube.svg",
+  "keywords": ["python", "flask", "youtube", "downloader", "yt-dlp"],
+  "stack": "heroku-22",
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "addons": [],
+  "env": {
+    "FLASK_ENV": {
+      "description": "Flask environment",
+      "value": "production"
+    }
+  }
+}
