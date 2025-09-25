@@ -28,8 +28,9 @@ ENV/
 env/
 .env
 
-# Streamlit
-.streamlit/secrets.toml
+# Streamlit (legacy)
+.streamlit/
+streamlit_app.py
 
 # IDE
 .vscode/
