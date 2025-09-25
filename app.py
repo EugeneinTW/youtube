@@ -130,10 +130,24 @@ class YouTubeDownloader:
 # 全域下載器實例
 downloader = YouTubeDownloader()
 
+@app.route('/health')
+def health_check():
+    """健康檢查端點"""
+    return jsonify({
+        'status': 'healthy',
+        'message': 'Flask app is running'
+    })
+
 @app.route('/')
 def index():
     """主頁面"""
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except Exception as e:
+        return jsonify({
+            'error': 'Template error',
+            'message': str(e)
+        }), 500
 
 @app.route('/api/validate_url', methods=['POST'])
 def validate_url():
