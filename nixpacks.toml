@@ -5,7 +5,7 @@ nixPkgs = ['python39', 'ffmpeg']
 cmds = ['pip install -r requirements.txt']
 
 [phases.build]
-cmds = ['echo "Build completed"']
+cmds = ['chmod +x railway-start.py']
 
 [start]
-cmd = 'streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true'
+cmd = 'python railway-start.py'
