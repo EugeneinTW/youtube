@@ -5,7 +5,7 @@ nixPkgs = ['python39', 'ffmpeg']
 cmds = ['pip install -r requirements.txt']
 
 [phases.build]
-cmds = ['chmod +x railway-start.py']
+cmds = ['echo "Flask app build completed"']
 
 [start]
-cmd = 'gunicorn app:app --bind 0.0.0.0:$PORT'
+cmd = 'gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 120'
