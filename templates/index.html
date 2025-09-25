@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 YouTube 影片下載器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #FF0000, #CC0000);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .input-group {
+            margin-bottom: 30px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .quality-selector {
+            margin-bottom: 30px;
+        }
+        
+        .quality-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .quality-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quality-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .quality-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .video-info {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .status-message {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .download-link {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .download-link a {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        
+        .download-link a:hover {
+            background: #218838;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 YouTube 影片下載器</h1>
+            <p>簡單、快速、安全的影片下載服務</p>
+        </div>
+        
+        <div class="content">
+            <div class="error" id="error-message"></div>
+            <div class="success" id="success-message"></div>
+            
+            <div class="input-group">
+                <label for="youtube-url">🔗 YouTube 影片連結</label>
+                <input type="text" id="youtube-url" placeholder="請貼上 YouTube 影片連結...">
+            </div>
+            
+            <div class="video-info" id="video-info">
+                <h3 id="video-title"></h3>
+                <p><strong>上傳者：</strong><span id="video-uploader"></span></p>
+                <p><strong>時長：</strong><span id="video-duration"></span></p>
+                <p><strong>觀看次數：</strong><span id="video-views"></span></p>
+            </div>
+            
+            <div class="quality-selector">
+                <label>🎬 選擇畫質</label>
+                <div class="quality-options">
+                    <div class="quality-option" data-quality="360p">
+                        <strong>360p</strong><br>
+                        <small>標準畫質</small>
+                    </div>
+                    <div class="quality-option" data-quality="480p">
+                        <strong>480p</strong><br>
+                        <small>增強畫質</small>
+                    </div>
+                    <div class="quality-option selected" data-quality="720p">
+                        <strong>720p</strong><br>
+                        <small>高畫質 HD</small>
+                    </div>
+                    <div class="quality-option" data-quality="1080p">
+                        <strong>1080p</strong><br>
+                        <small>全高畫質 FHD</small>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn" id="download-btn" onclick="startDownload()">
+                🚀 開始下載
+            </button>
+            
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="status-message" id="status-message">準備中...</div>
+            </div>
+            
+            <div class="download-link" id="download-link">
+                <a href="/api/download_file" download>💾 下載到電腦</a>
+                <br><br>
+                <button class="btn" onclick="resetDownload()" style="background: #6c757d;">🔄 重新開始</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedQuality = '720p';
+        let downloadInterval;
+        
+        // 畫質選擇
+        document.querySelectorAll('.quality-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.quality-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedQuality = this.dataset.quality;
+            });
+        });
+        
+        // URL 驗證
+        document.getElementById('youtube-url').addEventListener('blur', function() {
+            const url = this.value.trim();
+            if (url) {
+                validateUrl(url);
+            }
+        });
+        
+        function validateUrl(url) {
+            fetch('/api/validate_url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({url: url})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.valid && data.video_info) {
+                    showVideoInfo(data.video_info);
+                    hideError();
+                } else {
+                    showError(data.error || '無效的YouTube連結');
+                    hideVideoInfo();
+                }
+            })
+            .catch(error => {
+                showError('驗證連結時發生錯誤');
+                hideVideoInfo();
+            });
+        }
+        
+        function showVideoInfo(info) {
+            document.getElementById('video-title').textContent = info.title;
+            document.getElementById('video-uploader').textContent = info.uploader;
+            document.getElementById('video-duration').textContent = formatDuration(info.duration);
+            document.getElementById('video-views').textContent = formatViews(info.view_count);
+            document.getElementById('video-info').style.display = 'block';
+        }
+        
+        function hideVideoInfo() {
+            document.getElementById('video-info').style.display = 'none';
+        }
+        
+        function formatDuration(seconds) {
+            if (!seconds) return '未知';
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        function formatViews(views) {
+            if (!views) return '未知';
+            return views.toLocaleString();
+        }
+        
+        function startDownload() {
+            const url = document.getElementById('youtube-url').value.trim();
+            if (!url) {
+                showError('請輸入YouTube連結');
+                return;
+            }
+            
+            document.getElementById('download-btn').disabled = true;
+            document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('download-link').style.display = 'none';
+            
+            fetch('/api/download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    url: url,
+                    quality: selectedQuality
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    startStatusCheck();
+                } else {
+                    showError(data.error);
+                    resetUI();
+                }
+            })
+            .catch(error => {
+                showError('開始下載時發生錯誤');
+                resetUI();
+            });
+        }
+        
+        function startStatusCheck() {
+            downloadInterval = setInterval(checkStatus, 1000);
+        }
+        
+        function checkStatus() {
+            fetch('/api/status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('progress-fill').style.width = data.progress + '%';
+                document.getElementById('status-message').textContent = data.status;
+                
+                if (!data.is_downloading && data.status.includes('完成')) {
+                    clearInterval(downloadInterval);
+                    document.getElementById('download-link').style.display = 'block';
+                    showSuccess('下載完成！點擊下方按鈕下載到電腦。');
+                } else if (!data.is_downloading && (data.status.includes('錯誤') || data.status.includes('失敗'))) {
+                    clearInterval(downloadInterval);
+                    showError(data.status);
+                    resetUI();
+                }
+            })
+            .catch(error => {
+                clearInterval(downloadInterval);
+                showError('檢查狀態時發生錯誤');
+                resetUI();
+            });
+        }
+        
+        function resetDownload() {
+            fetch('/api/reset')
+            .then(() => {
+                resetUI();
+                hideError();
+                hideSuccess();
+            });
+        }
+        
+        function resetUI() {
+            document.getElementById('download-btn').disabled = false;
+            document.getElementById('progress-container').style.display = 'none';
+            document.getElementById('download-link').style.display = 'none';
+            document.getElementById('progress-fill').style.width = '0%';
+            if (downloadInterval) {
+                clearInterval(downloadInterval);
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+        
+        function hideSuccess() {
+            document.getElementById('success-message').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

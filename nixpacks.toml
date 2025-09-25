@@ -8,4 +8,4 @@ cmds = ['pip install -r requirements.txt']
 cmds = ['chmod +x railway-start.py']
 
 [start]
-cmd = 'python railway-start.py'
+cmd = 'gunicorn flask_app:app --bind 0.0.0.0:$PORT'
